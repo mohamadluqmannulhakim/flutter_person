@@ -11,4 +11,7 @@ abstract class PersonDao {
 
   @insert
   Future<void> insertPerson(Person person);
+
+  @Query('DELETE FROM person')
+  Future<void> deleteAllPersons(); // query without returning an entity
 }

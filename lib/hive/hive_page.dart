@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_third_project/floor/database.dart';
-import 'package:flutter_third_project/floor/person.dart';
-
-import 'floor/person_dao.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HivePage extends StatefulWidget {
   @override
@@ -11,14 +9,14 @@ class HivePage extends StatefulWidget {
 }
 
 class _HivePageState extends State<HivePage> {
-  PersonDao personDao;
   var data;
   var textController = TextEditingController();
+  Box box;
   var newId = 5;
 
   final AppBar appBar = AppBar(
     title: Text(
-      'Floor',
+      'Hive',
     ),
   );
 
@@ -29,23 +27,24 @@ class _HivePageState extends State<HivePage> {
   }
 
   loadPreferences() async {
-    final database =
-        await $FloorAppDatabase.databaseBuilder('app_database.db').build();
-    personDao = database.personDao;
-    StreamBuilder<Person>(
-        stream: personDao.findPersonById(newId),
-        builder: (context, snapshot) {
-          data = snapshot.data.name == null ? "Data: " : snapshot.data.name;
-          return data;
-        });
+    // Get Directory
+    final directory = await getApplicationDocumentsDirectory();
+
+    // initialize Hive
+    Hive.init(directory.path);
+
+    box = await Hive.openBox("box_person");
+    setState(() {
+      Hive.openBox("box_person");
+      data = box.get("data") ?? "Data: ";
+    });
   }
 
   submitForm() async {
     var newName = textController.text;
-    var person = Person(null, newName);
-    await personDao.insertPerson(person);
+    box.put("data", newName);
     setState(() {
-      data = person.name;
+      data = newName;
     });
   }
 

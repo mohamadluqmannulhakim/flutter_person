@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_third_project/floor/person_dao.dart';
 import 'package:flutter_third_project/floor_page.dart';
+
 // import 'package:flutter_third_project/shared_preferences_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // run app
   runApp(MyApp());
 }
 

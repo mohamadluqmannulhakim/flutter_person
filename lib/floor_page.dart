@@ -6,15 +6,17 @@ import 'package:flutter_third_project/floor/person.dart';
 import 'floor/person_dao.dart';
 
 class FloorPage extends StatefulWidget {
+  // final PersonDao personDao;
+  // FloorPage(this.personDao);
   @override
   _FloorPageState createState() => _FloorPageState();
 }
 
 class _FloorPageState extends State<FloorPage> {
-  PersonDao personDao;
   var data;
   var textController = TextEditingController();
   var newId = 5;
+  PersonDao personDao;
 
   final AppBar appBar = AppBar(
     title: Text(
@@ -32,38 +34,46 @@ class _FloorPageState extends State<FloorPage> {
     final database =
         await $FloorAppDatabase.databaseBuilder('app_database.db').build();
     personDao = database.personDao;
-    StreamBuilder<Person>(
-        stream: personDao.findPersonById(newId),
-        builder: (context, snapshot) {
-          data = snapshot.data.name == null ? "Data: " : snapshot.data.name;
-          return data;
-        });
+  }
+
+  listPerson() {
+    if (personDao == null)
+      return Container();
+    else
+      return FutureBuilder<List<Person>>(
+          future: personDao.findAllPersons(),
+          builder:
+              (BuildContext context, AsyncSnapshot<List<Person>> snapshot) {
+            if (snapshot == null || snapshot.data == null)
+              return Container();
+            else
+              return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    final item = snapshot.data[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(item.name),
+                      ),
+                    );
+                  });
+          });
   }
 
   submitForm() async {
     var newName = textController.text;
     var person = Person(null, newName);
     await personDao.insertPerson(person);
-    setState(() {
-      data = person.name;
-    });
+    setState(() {});
   }
 
   clearSharedPreference() async {
-    setState(() {
-      /* personDao.then((pref) {
-        pref.clear();
-      }); */
-    });
-    loadPreferences();
+    await personDao.deleteAllPersons();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (data == null) {
-      data = "Data: ";
-    }
-
     return Scaffold(
       appBar: appBar,
       body: SafeArea(
@@ -113,7 +123,9 @@ class _FloorPageState extends State<FloorPage> {
             ),
             Expanded(
               flex: 80,
-              child: Text(data),
+              child: Container(
+                child: listPerson(),
+              ),
             ),
           ],
         ),
