@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_third_project/hive/hive_person.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -9,10 +10,8 @@ class HivePage extends StatefulWidget {
 }
 
 class _HivePageState extends State<HivePage> {
-  var data;
   var textController = TextEditingController();
   Box box;
-  var newId = 5;
 
   final AppBar appBar = AppBar(
     title: Text(
@@ -32,37 +31,45 @@ class _HivePageState extends State<HivePage> {
 
     // initialize Hive
     Hive.init(directory.path);
+    Hive.registerAdapter(HivePersonAdapter());
 
     box = await Hive.openBox("box_person");
-    setState(() {
-      Hive.openBox("box_person");
-      data = box.get("data") ?? "Data: ";
-    });
+  }
+
+  listPerson() {
+    if (box == null || box.length == null)
+      return Container();
+    else {
+      print(box.length);
+      return ListView.builder(
+        itemCount: box.length,
+        itemBuilder: (context, index) {
+          final item = box.getAt(index);
+          return Card(
+            child: ListTile(
+              title: Text(item.name),
+            ),
+          );
+        },
+      );
+    }
   }
 
   submitForm() async {
     var newName = textController.text;
-    box.put("data", newName);
-    setState(() {
-      data = newName;
-    });
+    HivePerson hivePerson = new HivePerson(1, newName);
+    // "data" + box.length.toString() -> create unique id
+    box.put("data" + box.length.toString(), hivePerson);
+    setState(() {});
   }
 
   clearSharedPreference() async {
-    setState(() {
-      /* personDao.then((pref) {
-        pref.clear();
-      }); */
-    });
-    loadPreferences();
+    box.clear();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if (data == null) {
-      data = "Data: ";
-    }
-
     return Scaffold(
       appBar: appBar,
       body: SafeArea(
@@ -112,7 +119,9 @@ class _HivePageState extends State<HivePage> {
             ),
             Expanded(
               flex: 80,
-              child: Text(data),
+              child: Container(
+                child: listPerson(),
+              ),
             ),
           ],
         ),
@@ -123,6 +132,7 @@ class _HivePageState extends State<HivePage> {
   @override
   void dispose() {
     textController.dispose();
+    Hive.close();
     super.dispose();
   }
 }

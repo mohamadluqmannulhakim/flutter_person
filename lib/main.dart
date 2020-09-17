@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_third_project/floor/person_dao.dart';
 import 'package:flutter_third_project/floor_page.dart';
+import 'package:flutter_third_project/hive_page.dart';
 
 // import 'package:flutter_third_project/shared_preferences_page.dart';
 
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: FloorPage(),
+      home: HivePage(),
     );
   }
 }

@@ -15,7 +15,6 @@ class FloorPage extends StatefulWidget {
 class _FloorPageState extends State<FloorPage> {
   var data;
   var textController = TextEditingController();
-  var newId = 5;
   PersonDao personDao;
 
   final AppBar appBar = AppBar(
@@ -41,23 +40,24 @@ class _FloorPageState extends State<FloorPage> {
       return Container();
     else
       return FutureBuilder<List<Person>>(
-          future: personDao.findAllPersons(),
-          builder:
-              (BuildContext context, AsyncSnapshot<List<Person>> snapshot) {
-            if (snapshot == null || snapshot.data == null)
-              return Container();
-            else
-              return ListView.builder(
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (context, index) {
-                    final item = snapshot.data[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(item.name),
-                      ),
-                    );
-                  });
-          });
+        future: personDao.findAllPersons(),
+        builder: (BuildContext context, AsyncSnapshot<List<Person>> snapshot) {
+          if (snapshot == null || snapshot.data == null)
+            return Container();
+          else
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) {
+                final item = snapshot.data[index];
+                return Card(
+                  child: ListTile(
+                    title: Text(item.name),
+                  ),
+                );
+              },
+            );
+        },
+      );
   }
 
   submitForm() async {
